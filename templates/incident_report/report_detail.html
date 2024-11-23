@@ -1,0 +1,122 @@
+{% extends "_base.html" %}
+{% block title %}Incident Report Details | BAZNAS ITSM{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">Incident Report Details</h2>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Ticket Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <tbody>
+                        <tr>
+                            <th>Ticket Code</th>
+                            <td>{{ report.ticket_code }}</td>
+                        </tr>
+                        <tr>
+                            <th>Requester</th>
+                            <td>{{ report.requester.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Request For (Email)</th>
+                            <td>{{ report.request_for }}</td>
+                        </tr>
+                        <tr>
+                            <th>Contact Person</th>
+                            <td>{{ report.contact_person }}</td>
+                        </tr>
+                        <tr>
+                            <th>Category</th>
+                            <td>{{ report.category }}</td>
+                        </tr>
+                        <tr>
+                            <th>Sub Category</th>
+                            <td>{{ report.sub_category }}</td>
+                        </tr>
+                        <tr>
+                            <th>Issue</th>
+                            <td>{{ report.issue }}</td>
+                        </tr>
+                        <tr>
+                            <th>Affected Device</th>
+                            <td>{{ report.affected_device }}</td>
+                        </tr>
+                        <tr>
+                            <th>Building</th>
+                            <td>{{ report.building }}</td>
+                        </tr>
+                        <tr>
+                            <th>Floor</th>
+                            <td>{{ report.floor }}</td>
+                        </tr>
+                        <tr>
+                            <th>Subject</th>
+                            <td>{{ report.subject }}</td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td>{{ report.description }}</td>
+                        </tr>
+                        <tr>
+                            <th>Attachments</th>
+                            <td>
+                                {% if report.attachment %}
+                                <a href="{{ report.attachment.url }}" class="btn btn-primary btn-sm">Download Attachment</a>
+                                {% else %}
+                                No Attachment
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>{{ report.get_status_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Assigned To</th>
+                            <td>{{ report.assigned_to }}</td>
+                        </tr>
+                        <tr>
+                            <th>Created At</th>
+                            <td>{{ report.created_at|date:"Y-m-d H:i:s" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Assigned At</th>
+                            <td>
+                                {% if report.assigned_at %}
+                                    {{ report.assigned_at|date:"Y-m-d H:i:s" }}
+                                {% else %}
+                                    Not Assigned
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Resolved At</th>
+                            <td>
+                                {% if report.resolved_at %}
+                                    {{ report.resolved_at|date:"Y-m-d H:i:s" }}
+                                {% else %}
+                                    Not Resolved
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Closed At</th>
+                            <td>
+                                {% if report.closed_at %}
+                                    {{ report.closed_at|date:"Y-m-d H:i:s" }}
+                                {% else %}
+                                    Not Closed
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

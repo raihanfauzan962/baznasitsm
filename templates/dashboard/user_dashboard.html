@@ -1,0 +1,225 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>User Dashboard</h2>
+
+    <div class="kanban-board">
+        <div class="kanban-column">
+            <h3>Incident Reports</h3>
+            <p>Total Incidents: {{ total_incidents }}</p>
+
+            <div class="kanban-section">
+                <h4>Open ({{ incident_status_counts.open }})</h4>
+                <ul>
+                    {% for report in incident_reports %}
+                        {% if report.status == "Open" %}
+                            <li>
+                                <a href="{% url 'report_detail' report.pk %}">
+                                    {{ report.subject }} - {{ report.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="kanban-section">
+                <h4>Assigned ({{ incident_status_counts.assigned }})</h4>
+                <ul>
+                    {% for report in incident_reports %}
+                        {% if report.status == "Assigned" %}
+                            <li>
+                                <a href="{% url 'report_detail' report.pk %}">
+                                    {{ report.subject }} - {{ report.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="kanban-section">
+                <h4>In Progress ({{ incident_status_counts.in_progress }})</h4>
+                <ul>
+                    {% for report in incident_reports %}
+                        {% if report.status == "In Progress" %}
+                            <li>
+                                <a href="{% url 'report_detail' report.pk %}">
+                                    {{ report.subject }} - {{ report.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="kanban-section">
+                <h4>Pending ({{ incident_status_counts.pending }})</h4>
+                <ul>
+                    {% for report in incident_reports %}
+                        {% if report.status == "Pending" %}
+                            <li>
+                                <a href="{% url 'report_detail' report.pk %}">
+                                    {{ report.subject }} - {{ report.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="kanban-section">
+                <h4>Resolved ({{ incident_status_counts.resolved }})</h4>
+                <ul>
+                    {% for report in incident_reports %}
+                        {% if report.status == "Resolved" %}
+                            <li>
+                                <a href="{% url 'report_detail' report.pk %}">
+                                    {{ report.subject }} - {{ report.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="kanban-section">
+                <h4>Closed ({{ incident_status_counts.closed }})</h4>
+                <ul>
+                    {% for report in incident_reports %}
+                        {% if report.status == "Closed" %}
+                            <li>
+                                <a href="{% url 'report_detail' report.pk %}">
+                                    {{ report.subject }} - {{ report.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Service Requests Kanban Column -->
+        <div class="kanban-column">
+            <h3>Service Requests</h3>
+            <p>Total Service Requests: {{ total_service_requests }}</p>
+
+            <div class="kanban-section">
+                <h4>Pending ({{ service_request_status_counts.pending }})</h4>
+                <ul>
+                    {% for request in service_requests %}
+                        {% if request.status == "pending" %}
+                            <li>
+                                <a href="{% url 'request_detail' request.id %}">
+                                    {{ request.asset.name }} - {{ request.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="kanban-section">
+                <h4>Approved ({{ service_request_status_counts.approved }})</h4>
+                <ul>
+                    {% for request in service_requests %}
+                        {% if request.status == "approved" %}
+                            <li>
+                                <a href="{% url 'request_detail' request.id %}">
+                                    {{ request.asset.name }} - {{ request.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="kanban-section">
+                <h4>Rejected ({{ service_request_status_counts.rejected }})</h4>
+                <ul>
+                    {% for request in service_requests %}
+                        {% if request.status == "rejected" %}
+                            <li>
+                                <a href="{% url 'request_detail' request.id %}">
+                                    {{ request.asset.name }} - {{ request.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inline CSS -->
+<style>
+    .dashboard {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .dashboard h2 {
+        text-align: center;
+    }
+
+    .kanban-board {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .kanban-column {
+        flex: 1;
+        background-color: #e1e8f0; /* Light gray background */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .kanban-column h3 {
+        background-color: #003366; /* Navy blue */
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .kanban-section {
+        margin-top: 20px;
+    }
+
+    .kanban-section h4 {
+        background-color: #004080; /* Darker navy blue */
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+
+    .kanban-section ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .kanban-section ul li {
+        background-color: #ffffff; /* White for items */
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .kanban-section ul li a {
+        text-decoration: none;
+        color: #003366; /* Navy blue for links */
+        font-weight: bold;
+    }
+
+    .kanban-section ul li a:hover {
+        color: #00509e; /* Lighter shade of navy on hover */
+    }
+</style>
+
+{% endblock %}

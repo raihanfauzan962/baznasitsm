@@ -1,0 +1,69 @@
+{% extends "_base.html" %}
+{% block title %}My Service Requests | BAZNAS ITSM{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">My Service Requests</h2>
+
+    <!-- Filter options -->
+    <form method="GET" class="mb-3">
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <select name="filter" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if request.GET.filter == 'all' %}selected{% endif %}>All</option>
+                    <option value="today" {% if request.GET.filter == 'today' %}selected{% endif %}>Today</option>
+                    <option value="yesterday" {% if request.GET.filter == 'yesterday' %}selected{% endif %}>Yesterday</option>
+                    <option value="7_days" {% if request.GET.filter == '7_days' %}selected{% endif %}>Last 7 Days</option>
+                    <option value="30_days" {% if request.GET.filter == '30_days' %}selected{% endif %}>Last 30 Days</option>
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if request.GET.status == 'all' %}selected{% endif %}>All Statuses</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Ticket Code</th>
+                <th>Asset Name</th>
+                <th>Status</th>
+                <th>PIC</th>
+                <th>Date Created</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.ticket_code }}</td>
+                <td>{{ request.asset.name }}</td>
+                <td>{{ request.get_status_display }}</td>
+                <td>
+                    {% if request.asset.pic %}
+                        {{ request.asset.pic.username }}
+                    {% else %}
+                        Not Assigned
+                    {% endif %}
+                </td>
+                <td>{{ request.created_at|date:"Y-m-d H:i:s" }}</td>
+                <td>
+                    <a href="{% url 'request_detail' request.id %}" class="btn btn-info btn-sm">View Details</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No service requests found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

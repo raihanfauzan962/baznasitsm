@@ -1,0 +1,181 @@
+{% extends "_base.html" %}
+{% load static %}
+{% load form_filters %}
+
+{% block title %}Create Incident Report | BAZNAS ITSM{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Create New Incident Report</h2>
+
+    <!-- Alert for validation messages -->
+    <div id="alert-container" class="d-none">
+        <div class="alert alert-danger" role="alert"></div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Request For -->
+                <div class="form-group">
+                    <label for="id_request_for">Request For</label>
+                    {{ form.request_for|add_class:"form-control" }}
+                </div>
+
+                <!-- Contact Person -->
+                <div class="form-group">
+                    <label for="id_contact_person">Contact Person</label>
+                    {{ form.contact_person|add_class:"form-control" }}
+                </div>
+
+                <!-- Category -->
+                <div class="form-group">
+                    <label for="id_category">Category</label>
+                    {{ form.category|add_class:"form-control" }}
+                </div>
+
+                <!-- Sub-Category (loaded via AJAX) -->
+                <div class="form-group">
+                    <label for="id_sub_category">Sub-Category</label>
+                    {{ form.sub_category|add_class:"form-control" }}
+                </div>
+
+                <!-- Issue (loaded via AJAX) -->
+                <div class="form-group">
+                    <label for="id_issue">Issue</label>
+                    {{ form.issue|add_class:"form-control" }}
+                </div>
+
+                <!-- Affected Device (loaded via AJAX) -->
+                <div class="form-group">
+                    <label for="id_affected_device">Affected Device</label>
+                    {{ form.affected_device|add_class:"form-control" }}
+                </div>
+
+                <!-- Building -->
+                <div class="form-group">
+                    <label for="id_building">Building</label>
+                    {{ form.building|add_class:"form-control" }}
+                </div>
+
+                <!-- Floor (loaded via AJAX) -->
+                <div class="form-group">
+                    <label for="id_floor">Floor</label>
+                    {{ form.floor|add_class:"form-control" }}
+                </div>
+
+                <!-- Subject -->
+                <div class="form-group">
+                    <label for="id_subject">Subject</label>
+                    {{ form.subject|add_class:"form-control" }}
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="id_description">Description</label>
+                    {{ form.description|add_class:"form-control" }}
+                </div>
+
+                <!-- Attachment -->
+                <div class="form-group">
+                    <label for="id_attachment">Attachment</label>
+                    {{ form.attachment|add_class:"form-control-file" }}
+                    <small class="form-text text-muted">
+                        Only pdf, csv, jpeg, jpg, png, and xlsx files are allowed. Max size: 5MB.
+                    </small>
+                    {% if form.attachment.errors %}
+                        <div class="text-danger">{{ form.attachment.errors }}</div>
+                    {% endif %}
+                </div>
+
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- AJAX Script for dynamic form updates -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Category -> SubCategory
+        $('#id_category').change(function () {
+            var url = "{% url 'ajax_load_subcategories' %}";
+            var categoryId = $(this).val();
+            $.ajax({
+                url: url,
+                data: {
+                    'category': categoryId
+                },
+                success: function (data) {
+                    $("#id_sub_category").html('<option value="">---------</option>');
+                    $.each(data, function (key, value) {
+                        $("#id_sub_category").append('<option value="' + value.id + '">' + value.name + '</option>');
+                    });
+                }
+            });
+        });
+
+        // SubCategory -> Issue
+        $('#id_sub_category').change(function () {
+            var url = "{% url 'ajax_load_issues' %}";
+            var subCategoryId = $(this).val();
+            $.ajax({
+                url: url,
+                data: {
+                    'sub_category': subCategoryId
+                },
+                success: function (data) {
+                    $("#id_issue").html('<option value="">---------</option>');
+                    $.each(data, function (key, value) {
+                        $("#id_issue").append('<option value="' + value.id + '">' + value.name + '</option>');
+                    });
+                }
+            });
+        });
+
+        // Issue -> AffectedDevice
+        $('#id_issue').change(function () {
+            var url = "{% url 'ajax_load_affected_devices' %}";
+            var issueId = $(this).val();
+            $.ajax({
+                url: url,
+                data: {
+                    'issue': issueId
+                },
+                success: function (data) {
+                    $("#id_affected_device").html('<option value="">---------</option>');
+                    $.each(data, function (key, value) {
+                        $("#id_affected_device").append('<option value="' + value.id + '">' + value.name + '</option>');
+                    });
+                }
+            });
+        });
+
+        // Building -> Floor
+        $('#id_building').change(function () {
+            var url = "{% url 'ajax_load_floors' %}";
+            var buildingId = $(this).val();
+            $.ajax({
+                url: url,
+                data: {
+                    'building': buildingId
+                },
+                success: function (data) {
+                    $("#id_floor").html('<option value="">---------</option>');
+                    $.each(data, function (key, value) {
+                        $("#id_floor").append('<option value="' + value.id + '">' + value.name + '</option>');
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock content %}

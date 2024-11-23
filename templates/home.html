@@ -1,0 +1,115 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block title %}Home | BAZNAS ITSM{% endblock title %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f8f9fa; /* Light background for contrast */
+    }
+
+    .container {
+        margin-top: 50px;
+    }
+
+    h1 {
+        color: #343a40; /* Dark gray color for main heading */
+    }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+    }
+
+    .card:hover {
+        transform: translateY(-5px); /* Lift card on hover */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+    }
+
+    .card-title {
+        color: #007bff; /* Primary color for titles */
+        font-weight: bold;
+    }
+
+    .btn-primary {
+        background-color: #007bff; /* Primary button color */
+        border: none;
+        transition: background-color 0.3s ease; /* Smooth transition for button */
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3; /* Darker shade on hover */
+    }
+
+    .lead {
+        margin-top: 20px;
+        color: #6c757d; /* Secondary text color */
+    }
+
+    .row {
+        margin-bottom: 30px; /* Space between rows */
+    }
+</style>
+
+<div class="container text-center">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="fw-bold display-4">Hai, ada yang bisa kami bantu?</h1>
+            <p class="lead">Kami siap membantu Anda dengan segala kebutuhan layanan.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Tickets Section -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <img src="{% static 'images/tickets.jpeg' %}" class="card-img-top" alt="Tickets" style="height: 150px; object-fit: contain;">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-ticket-alt"></i> Tickets</h5>
+                    <p class="card-text">Check your ticket updates details here</p>
+                    <a href="{% url 'user_dashboard' %}" class="btn btn-primary">View Tickets</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report an Issue Section -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <img src="{% static 'images/issue.jpeg' %}" class="card-img-top" alt="Report Issue" style="height: 150px; object-fit: contain;">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-exclamation-triangle"></i> Report an Issue</h5>
+                    <p class="card-text">Having trouble? Contact the support team</p>
+                    <a href="{% url 'create_incident_report' %}" class="btn btn-primary">Report Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request a Service Section -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <img src="{% static 'images/service.jpeg' %}" class="card-img-top" alt="Request Service" style="height: 150px; object-fit: contain;">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-concierge-bell"></i> Request a Service</h5>
+                    <p class="card-text">Browse the list of services and make a request</p>
+                    <a href="{% url 'choose_category' %}" class="btn btn-primary">Request Service</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approve Request Section -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <img src="{% static 'images/approve.jpeg' %}" class="card-img-top" alt="Approve Request" style="height: 150px; object-fit: contain;">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-check-circle"></i> Approve Request</h5>
+                    <p class="card-text">View all your requests awaiting approval</p>
+                    <a href="{% url 'user_requests' %}" class="btn btn-primary">View Approvals</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Font Awesome -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+{% endblock content %}

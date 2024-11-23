@@ -1,0 +1,52 @@
+body { 
+    min-height: 75rem; 
+    padding-top: 4.5rem; 
+}
+
+img.bookcover { 
+    height: 300px; 
+    width: auto; 
+}
+
+.navbar-search-input {
+    border: 1px solid black;
+  }
+
+.link-item {
+    font-size: 1.5rem; /* Adjust size if needed */
+    color: black; /* Default link color */
+    text-decoration: none; /* Remove underline */
+  }
+  
+.link-item:hover {
+    text-decoration: underline; /* Underline on hover */
+  }
+  
+span {
+    font-size: 1.5rem; /* Ensure vertical bar matches link size */
+    color: #000; /* Color for the vertical bar */
+  }
+  
+html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  .content-wrapper {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+.footer {
+    margin-top: auto;
+  }
+
+.footer a {
+    color: black; /* Change link color to black */
+    text-decoration: none; /* Remove underline */
+  }
+
+.footer a:hover {
+    text-decoration: underline; /* Optional: Add underline on hover for better user experience */
+  }
