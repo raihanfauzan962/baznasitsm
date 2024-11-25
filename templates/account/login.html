@@ -13,11 +13,11 @@
     <div class="button-group">
       <button class="btn btn-success" type="submit">Log In</button>
       <!-- Google Login Button -->
-      {% comment %} <a href="{% provider_login_url 'google' %}" class="btn btn-google">
+      <a href="{% provider_login_url 'google' %}" class="btn btn-google">
         <!-- Use static path for the Google logo -->
         <img src="{% static 'images/google_logo.png' %}" alt="Google Logo" style="width: 35px; margin-right: 8px;">
         Sign in with Google
-      </a> {% endcomment %}
+      </a>
     </div>
   </form>
 {% endblock content %}
