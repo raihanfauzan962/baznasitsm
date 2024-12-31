@@ -6,7 +6,7 @@
     <ul class="list-group">
       {% for category in categories %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          <a href="{% url 'choose_asset' category.id %}" class="category-link text-decoration-none text-dark fw-bold fs-3"> <!-- Increased to fs-3 for larger text -->
+          <a href="{% url 'choose_service_item' category.id %}" class="category-link text-decoration-none text-dark fw-bold fs-3"> <!-- Increased to fs-3 for larger text -->
             {{ category.name }}
           </a>
         </li>

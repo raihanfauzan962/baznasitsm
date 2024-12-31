@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth import get_user_model
@@ -56,12 +57,19 @@ class Floor(models.Model):
 # Model for incident reports (tickets)
 class IncidentReport(DirtyFieldsMixin, models.Model):
     STATUS_CHOICES = [
-        ('Open', 'Open'),
-        ('Assigned', 'Assigned'),
-        ('In Progress', 'In Progress'),
-        ('Pending', 'Pending'),
-        ('Resolved', 'Resolved'),
-        ('Closed', 'Closed'),
+        ('open', 'Open'),
+        ('pending', 'Pending'),
+        ('pending_customer', 'Pending - Customer'),
+        ('pending_assignment', 'Pending - Assignment'),
+        ('pending_third_party', 'Pending - Third Party'),
+        ('pending_procurement', 'Pending - Procurement'),
+        ('assigned', 'Assigned'),
+        ('resolved', 'Resolved'),
+        ('cancelled', 'Cancelled'),
+        ('waiting_approval', 'Waiting on Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('closed', 'Closed'),
     ]
     
     ticket_code = models.CharField(max_length=255, unique=True)  # Unique identifier for the ticket
@@ -71,6 +79,7 @@ class IncidentReport(DirtyFieldsMixin, models.Model):
     contact_person = models.CharField(max_length=20, blank=True, null=True)  # Optional contact number
     
     # Ticket fields
+    group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.SET_NULL)
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_tickets')  # User assigned to resolve the ticket
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Open')  # Current status of the ticket
     
@@ -87,13 +96,23 @@ class IncidentReport(DirtyFieldsMixin, models.Model):
     subject = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     attachment = models.FileField(upload_to='attachments/', blank=True, null=True)  # Validate file size elsewhere
-    
+    remark = models.TextField(blank=True, null=True)  # New field for additional remarks
     
     # Timestamps for tracking the ticket lifecycle
-    created_at = models.DateTimeField(default=timezone.now)  # Creation timestamp
-    assigned_at = models.DateTimeField(null=True, blank=True)  # Timestamp when the ticket is assigned
-    resolved_at = models.DateTimeField(null=True, blank=True)  # Timestamp when the ticket is resolved
-    closed_at = models.DateTimeField(null=True, blank=True)  # Timestamp when the ticket is closed
+    created_at = models.DateTimeField(default=timezone.now)
+    open_at = models.DateTimeField(null=True, blank=True)
+    pending_at = models.DateTimeField(null=True, blank=True)
+    pending_customer_at = models.DateTimeField(null=True, blank=True)
+    pending_assignment_at = models.DateTimeField(null=True, blank=True)
+    pending_third_party_at = models.DateTimeField(null=True, blank=True)
+    pending_procurement_at = models.DateTimeField(null=True, blank=True)
+    assigned_at = models.DateTimeField(null=True, blank=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+    waiting_approval_at = models.DateTimeField(null=True, blank=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejected_at = models.DateTimeField(null=True, blank=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
 
     def clean(self):
         """Validate file size and extension."""
@@ -138,15 +157,36 @@ class IncidentReport(DirtyFieldsMixin, models.Model):
             self.ticket_code = f"INC-{current_year_month}{last_number:05d}"
         
         # Update timestamps based on status changes
-        if self.pk:  # Check if the instance is being updated
-            old_instance = IncidentReport.objects.get(pk=self.pk)  # Fetch the old instance
-            if old_instance.status != self.status:  # Check if status has changed
-                if self.status == 'Assigned':
-                    self.assigned_at = timezone.now()  # Set assigned timestamp
-                elif self.status == 'Resolved':
-                    self.resolved_at = timezone.now()  # Set resolved timestamp
-                elif self.status == 'Closed':
-                    self.closed_at = timezone.now()  # Set closed timestamp
+        if self.pk:
+            old_instance = IncidentReport.objects.get(pk=self.pk)
+            if old_instance.status != self.status:
+                now = timezone.now()
+                if self.status == 'open' and not self.open_at:
+                    self.open_at = now
+                elif self.status == 'pending' and not self.pending_at:
+                    self.pending_at = now
+                elif self.status == 'pending_customer' and not self.pending_customer_at:
+                    self.pending_customer_at = now
+                elif self.status == 'pending_assignment' and not self.pending_assignment_at:
+                    self.pending_assignment_at = now
+                elif self.status == 'pending_third_party' and not self.pending_third_party_at:
+                    self.pending_third_party_at = now
+                elif self.status == 'pending_procurement' and not self.pending_procurement_at:
+                    self.pending_procurement_at = now
+                elif self.status == 'assigned' and not self.assigned_at:
+                    self.assigned_at = now
+                elif self.status == 'resolved' and not self.resolved_at:
+                    self.resolved_at = now
+                elif self.status == 'cancelled' and not self.cancelled_at:
+                    self.cancelled_at = now
+                elif self.status == 'waiting_approval' and not self.waiting_approval_at:
+                    self.waiting_approval_at = now
+                elif self.status == 'approved' and not self.approved_at:
+                    self.approved_at = now
+                elif self.status == 'rejected' and not self.rejected_at:
+                    self.rejected_at = now
+                elif self.status == 'closed' and not self.closed_at:
+                    self.closed_at = now
         
         super().save(*args, **kwargs)  # Call the parent save method
 

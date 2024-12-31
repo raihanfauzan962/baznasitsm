@@ -1,4 +1,5 @@
 {% extends "_base.html" %}
+
 {% block title %}Service Request Details | BAZNAS ITSM{% endblock title %}
 
 {% block content %}
@@ -18,15 +19,25 @@
                     </tr>
                     <tr>
                         <th>Category</th>
-                        <td>{{ service_request.asset.category.name }}</td>
+                        <td>{{ service_request.service_item.category.name }}</td>
                     </tr>
                     <tr>
-                        <th>Asset</th>
-                        <td>{{ service_request.asset.name }}</td>
+                        <th>Service Item</th>
+                        <td>{{ service_request.service_item.name }}</td>
                     </tr>
                     <tr>
-                        <th>PIC</th>
-                        <td>{{ service_request.asset.pic.username }}</td>
+                        <th>Assignee</th>
+                        <td>{{ service_request.assignee.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Group</th>
+                        <td>
+                            {% if service_request.group %}
+                                {{ service_request.group.name }}
+                            {% else %}
+                                Not Assigned
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <th>Status</th>
@@ -37,22 +48,12 @@
                         <td>{{ service_request.created_at|date:"Y-m-d H:i:s" }}</td>
                     </tr>
                     <tr>
-                        <th>Approved At</th>
+                        <th>Remark</th>
                         <td>
-                            {% if service_request.approved_at %}
-                                {{ service_request.approved_at|date:"Y-m-d H:i:s" }}
+                            {% if service_request.remark %}
+                                {{ service_request.remark }}
                             {% else %}
-                                Not Approved
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Rejected At</th>
-                        <td>
-                            {% if service_request.rejected_at %}
-                                {{ service_request.rejected_at|date:"Y-m-d H:i:s" }}
-                            {% else %}
-                                Not Rejected
+                                No remarks provided.
                             {% endif %}
                         </td>
                     </tr>

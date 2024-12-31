@@ -1,4 +1,5 @@
 .venv
+.env
 __pycache__/
 db.sqlite3
-bzn-sandbox-msib-6a3f7719e7ea.json
+bzn-sandbox-msib-6e78fa243120.json

@@ -1,13 +1,13 @@
 from django.contrib import admin
-from .models import Category, Asset, AssetForm, ServiceRequest
+from .models import Category, ServiceItem, ServiceItemForm, ServiceRequest, Group, User
 from django import forms
 import json
 from django.core.exceptions import ValidationError
 import csv
 from django.http import HttpResponse
-from .models import ServiceRequest
+from django.utils.safestring import mark_safe
 
-class AssetFormAdminForm(forms.ModelForm):
+class ServiceItemFormAdminForm(forms.ModelForm):
     form_fields = forms.CharField(
         widget=forms.Textarea,
         help_text="Enter JSON formatted form fields",
@@ -15,7 +15,7 @@ class AssetFormAdminForm(forms.ModelForm):
     )
 
     class Meta:
-        model = AssetForm
+        model = ServiceItemForm
         fields = '__all__'
 
     def clean_form_fields(self):
@@ -26,71 +26,102 @@ class AssetFormAdminForm(forms.ModelForm):
         except json.JSONDecodeError:
             raise ValidationError("Invalid JSON format. Please enter valid JSON.")
 
+# Admin for Category
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name']
     search_fields = ['name']  # Enable search by category name
 
-@admin.register(Asset)
-class AssetAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'pic']
+# Admin for ServiceItem
+@admin.register(ServiceItem)
+class ServiceItemAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'image']
     list_filter = ['category']  # Enable filtering by category
-    search_fields = ['name']  # Enable search by asset name
-    fields = ['name', 'category', 'pic', 'image']
+    search_fields = ['name']  # Enable search by service item name
+    fields = ['name', 'category', 'image']  # Corrected to use 'image' instead of 
 
-@admin.register(AssetForm)
-class AssetFormAdmin(admin.ModelAdmin):
-    form = AssetFormAdminForm
-    list_display = ['asset']
-    search_fields = ['asset__name']  # Enable search by asset name through the related model
-    list_filter = ['asset']  # Enable filtering by asset
+# Admin for ServiceItemForm
+@admin.register(ServiceItemForm)
+class ServiceItemFormAdmin(admin.ModelAdmin):
+    form = ServiceItemFormAdminForm
+    list_display = ['service_item']
+    search_fields = ['service_item__name']  # Enable search by service item name through the related model
+    list_filter = ['service_item']  # Enable filtering by service item
 
+# Custom form for ServiceRequestAdmin to filter assignee based on the selected group
+class ServiceRequestAdminForm(forms.ModelForm):
+    class Meta:
+        model = ServiceRequest
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # If the instance has a group assigned, filter assignee field
+        if self.instance.pk:  # Instance is being edited (not new)
+            group = self.instance.group
+            if group:
+                self.fields['assignee'].queryset = group.user_set.all()  # Filter assignee to users in this group
+        else:
+            # If the instance is new, leave the assignee queryset unfiltered
+            self.fields['assignee'].queryset = User.objects.none()  # Initially empty until group is set
+
+# Admin for ServiceRequest
 @admin.register(ServiceRequest)
 class ServiceRequestAdmin(admin.ModelAdmin):
-    list_display = ['ticket_code', 'asset', 'user', 'status', 'created_at']
-    list_filter = ['status', 'created_at']
-    search_fields = ['user__username', 'asset__name']
-    actions = ['export_to_csv']  # Register the action
+    form = ServiceRequestAdminForm
+    list_display = ['ticket_code', 'service_item', 'user', 'status', 'group', 'assignee', 'created_at', 'formatted_form_data']
+    list_filter = ['status', 'created_at', 'group', 'assignee']
+    search_fields = ['user__username', 'service_item__name']
+    actions = ['export_to_csv']
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
+    def formatted_form_data(self, obj):
+        """
+        Display the JSON form_data field as a formatted HTML table.
+        """
+        if not obj.form_data:
+            return "No form data available"
         
-        # Allow superusers to see all service requests
-        if request.user.is_superuser:
-            return qs
+        table_html = "<table border='1' style='border-collapse: collapse; width: 100%;'>"
+        table_html += "<tr><th>Field</th><th>Value</th></tr>"
+        
+        for key, value in obj.form_data.items():
+            table_html += f"<tr><td>{key}</td><td>{value}</td></tr>"
+        
+        table_html += "</table>"
+        return mark_safe(table_html)  # Mark the table as safe HTML to render it correctly in the admin
 
-        # If the user is staff, filter by assets where the user is PIC
-        if request.user.is_staff:
-            return qs.filter(asset__pic=request.user)
-
-        return qs  # Return all requests for other cases
+    formatted_form_data.short_description = "Form Data (Table)"  # Set column title for the admin
 
     def export_to_csv(self, request, queryset):
-        # CSV response
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="service_requests.csv"'
         
         writer = csv.writer(response)
-        # Writing header row
-        writer.writerow(['Ticket Code', 'Category', 'Asset', 'PIC', 'Status', 'Created At', 'Approved At', 'Rejected At', 'Form Data'])
-
+        writer.writerow(['Ticket Code', 'Category', 'Service Item', 'Image', 'Group', 'Assignee', 'Status', 'Created At', 'Approved At', 'Rejected At', 'Form Data'])
+        
         for service_request in queryset:
-            # Extracting data from each service request
             ticket_code = service_request.ticket_code
-            category = service_request.asset.category.name if service_request.asset and service_request.asset.category else 'N/A'
-            asset = service_request.asset.name if service_request.asset else 'N/A'
-            pic = service_request.asset.pic.username if service_request.asset and service_request.asset.pic else 'N/A'
+            category = service_request.service_item.category.name if service_request.service_item and service_request.service_item.category else 'N/A'
+            service_item = service_request.service_item.name if service_request.service_item else 'N/A'
+            image = service_request.service_item.image.url if service_request.service_item.image else 'No Image'
+            group = service_request.group.name if service_request.group else 'N/A'
+            assignee = service_request.assignee.username if service_request.assignee else 'N/A'
             status = service_request.get_status_display()
             created_at = service_request.created_at.strftime("%Y-%m-%d %H:%M:%S")
             approved_at = service_request.approved_at.strftime("%Y-%m-%d %H:%M:%S") if service_request.approved_at else 'Not Approved'
             rejected_at = service_request.rejected_at.strftime("%Y-%m-%d %H:%M:%S") if service_request.rejected_at else 'Not Rejected'
             form_data = json.dumps(service_request.form_data) if service_request.form_data else 'No form data available'
 
-            # Writing a row for each service request
-            writer.writerow([ticket_code, category, asset, pic, status, created_at, approved_at, rejected_at, form_data])
+            writer.writerow([ticket_code, category, service_item, image, group, assignee, status, created_at, approved_at, rejected_at, form_data])
 
         return response
 
     export_to_csv.short_description = "Export selected service requests to CSV"
 
+    def save_model(self, request, obj, form, change):
+        if obj.group:
+            if not obj.assignee or obj.assignee not in obj.group.user_set.all():
+                obj.assignee = None
+        super().save_model(request, obj, form, change)
 

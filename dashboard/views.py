@@ -31,6 +31,7 @@ class UserDashboardView(LoginRequiredMixin, View):
         # Count service requests by status
         service_request_status_counts = {
             'pending': service_requests.filter(status='pending').count(),
+            'assigned': service_requests.filter(status='assigned').count(),
             'approved': service_requests.filter(status='approved').count(),
             'rejected': service_requests.filter(status='rejected').count(),
         }

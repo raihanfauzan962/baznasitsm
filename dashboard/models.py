@@ -12,6 +12,7 @@ class TicketSummary(models.Model):
     incident_closed = models.IntegerField(default=0)
 
     service_pending = models.IntegerField(default=0)
+    service_assigned = models.IntegerField(default=0)
     service_approved = models.IntegerField(default=0)
     service_rejected = models.IntegerField(default=0)
 
@@ -26,6 +27,7 @@ class TicketSummary(models.Model):
         self.incident_closed = IncidentReport.objects.filter(status='Closed').count()
 
         self.service_pending = ServiceRequest.objects.filter(status='pending').count()
+        self.service_assigned = ServiceRequest.objects.filter(status='assigned').count()
         self.service_approved = ServiceRequest.objects.filter(status='approved').count()
         self.service_rejected = ServiceRequest.objects.filter(status='rejected').count()
 

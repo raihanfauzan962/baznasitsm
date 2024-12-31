@@ -33,9 +33,9 @@
         <thead>
             <tr>
                 <th>Ticket Code</th>
-                <th>Asset Name</th>
+                <th>Service Item Name</th>
                 <th>Status</th>
-                <th>PIC</th>
+                <th>Assignee</th>
                 <th>Date Created</th>
                 <th>Details</th>
             </tr>
@@ -44,11 +44,11 @@
             {% for request in requests %}
             <tr>
                 <td>{{ request.ticket_code }}</td>
-                <td>{{ request.asset.name }}</td>
+                <td>{{ request.service_item.name }}</td>
                 <td>{{ request.get_status_display }}</td>
                 <td>
-                    {% if request.asset.pic %}
-                        {{ request.asset.pic.username }}
+                    {% if request.assignee %}
+                        {{ request.assignee.username }}
                     {% else %}
                         Not Assigned
                     {% endif %}

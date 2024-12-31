@@ -7,7 +7,7 @@ class TicketSummaryAdmin(admin.ModelAdmin):
     list_display = (
         'incident_open', 'incident_assigned', 'incident_in_progress',
         'incident_pending', 'incident_resolved', 'incident_closed',
-        'service_pending', 'service_approved', 'service_rejected', 'last_updated'
+        'service_pending', 'service_assigned', 'service_approved', 'service_rejected', 'last_updated'
     )
 
     def has_add_permission(self, request):

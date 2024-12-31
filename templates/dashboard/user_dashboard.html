@@ -112,7 +112,22 @@
                         {% if request.status == "pending" %}
                             <li>
                                 <a href="{% url 'request_detail' request.id %}">
-                                    {{ request.asset.name }} - {{ request.created_at }}
+                                    {{ request.service_item.name }} - {{ request.created_at }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="kanban-section">
+                <h4>Assigned ({{ service_request_status_counts.assigned }})</h4>
+                <ul>
+                    {% for request in service_requests %}
+                        {% if request.status == "assigned" %}
+                            <li>
+                                <a href="{% url 'request_detail' request.id %}">
+                                    {{ request.service_item.name }} - {{ request.created_at }}
                                 </a>
                             </li>
                         {% endif %}
@@ -127,7 +142,7 @@
                         {% if request.status == "approved" %}
                             <li>
                                 <a href="{% url 'request_detail' request.id %}">
-                                    {{ request.asset.name }} - {{ request.created_at }}
+                                    {{ request.service_item.name }} - {{ request.created_at }}
                                 </a>
                             </li>
                         {% endif %}
@@ -142,7 +157,7 @@
                         {% if request.status == "rejected" %}
                             <li>
                                 <a href="{% url 'request_detail' request.id %}">
-                                    {{ request.asset.name }} - {{ request.created_at }}
+                                    {{ request.service_item.name }} - {{ request.created_at }}
                                 </a>
                             </li>
                         {% endif %}

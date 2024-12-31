@@ -3,26 +3,31 @@ from typing import Any, Dict, List
 
 class DynamicServiceRequestForm(forms.Form):
     def __init__(self, *args: Any, **kwargs: Dict[str, Any]):
-        asset_form = kwargs.pop('asset_form')
+        service_item_form = kwargs.pop('service_item_form')
         super().__init__(*args, **kwargs)
 
         # Dynamically create form fields from JSON
-        self.create_dynamic_fields(asset_form['fields'])
+        self.create_dynamic_fields(service_item_form['fields'])
 
     def create_dynamic_fields(self, fields: List[Dict[str, Any]]) -> None:
         for field in fields:
-            field_type = field['type']
-            field_name = field['name']
+            field_type = field.get('type', 'text')  # Default to 'text' if no 'type' is provided
+            field_name = field.get('name', '')
             required = field.get('required', False)
             label = field.get('label', '')
             help_text = field.get('help_text', '')
+            placeholder = field.get('placeholder', '')
+
+            # Ensure field_name is valid
+            if not field_name:
+                continue  # Skip if field_name is not provided
 
             # Create fields based on their type
             if field_type == 'text':
                 self.fields[field_name] = forms.CharField(
                     label=label,
                     required=required,
-                    widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': field.get('placeholder', '')}),
+                    widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': placeholder}),
                     help_text=help_text
                 )
 
@@ -30,7 +35,7 @@ class DynamicServiceRequestForm(forms.Form):
                 self.fields[field_name] = forms.EmailField(
                     label=label,
                     required=required,
-                    widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': field.get('placeholder', '')}),
+                    widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': placeholder}),
                     help_text=help_text
                 )
 
@@ -38,7 +43,7 @@ class DynamicServiceRequestForm(forms.Form):
                 self.fields[field_name] = forms.ChoiceField(
                     label=label,
                     required=required,
-                    choices=[(option['value'], option['label']) for option in field['options']],
+                    choices=[(option.get('value'), option.get('label')) for option in field.get('options', [])],
                     widget=forms.Select(attrs={'class': 'form-select'}),
                     help_text=help_text
                 )
@@ -47,7 +52,7 @@ class DynamicServiceRequestForm(forms.Form):
                 self.fields[field_name] = forms.ChoiceField(
                     label=label,
                     required=required,
-                    choices=[(option['value'], option['label']) for option in field['options']],
+                    choices=[(option.get('value'), option.get('label')) for option in field.get('options', [])],
                     widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
                     help_text=help_text
                 )
@@ -64,7 +69,7 @@ class DynamicServiceRequestForm(forms.Form):
                 self.fields[field_name] = forms.MultipleChoiceField(
                     label=label,
                     required=required,
-                    choices=[(option['value'], option['label']) for option in field['options']],
+                    choices=[(option.get('value'), option.get('label')) for option in field.get('options', [])],
                     widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check'}),
                     help_text=help_text
                 )
@@ -73,7 +78,7 @@ class DynamicServiceRequestForm(forms.Form):
                 self.fields[field_name] = forms.IntegerField(
                     label=label,
                     required=required,
-                    widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': field.get('placeholder', '')}),
+                    widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': placeholder}),
                     help_text=help_text
                 )
 
@@ -83,7 +88,7 @@ class DynamicServiceRequestForm(forms.Form):
                     required=required,
                     widget=forms.Textarea(attrs={
                         'class': 'form-control',
-                        'placeholder': field.get('placeholder', ''),
+                        'placeholder': placeholder,
                         'rows': field.get('rows', 3)  # Default rows can be set to 3
                     }),
                     help_text=help_text
@@ -95,7 +100,7 @@ class DynamicServiceRequestForm(forms.Form):
                     required=required,
                     widget=forms.DateInput(attrs={
                         'class': 'form-control',
-                        'placeholder': field.get('placeholder', ''),
+                        'placeholder': placeholder,
                         'type': 'date'  # Use HTML5 date input
                     }),
                     help_text=help_text
